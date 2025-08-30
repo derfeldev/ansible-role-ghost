@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# ignore roles pulled by ansible-galaxy
+/roles/galaxy/*
+
+# ignore requirements and setup files
+/requirements.yml
+/setup.yml
+# /group_vars/mash_servers  # Commented out as this role is now standalone
+
+# ignore runtime files
+/run/*
+
+# ignore temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ignore IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# ignore OS files
+.DS_Store
+Thumbs.db

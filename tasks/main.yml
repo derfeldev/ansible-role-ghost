@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Perform Ghost installation tasks
+  when: ghost_enabled | bool
+  tags:
+    - setup-all
+    - setup-ghost
+    - install-all
+    - install-ghost
+  block:
+    - name: Validate Ghost configuration
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+    - name: Install Ghost
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+
+- name: Perform Ghost uninstallation tasks
+  when: not ghost_enabled | bool
+  tags:
+    - setup-all
+    - setup-ghost
+  block:
+    - name: Uninstall Ghost
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"

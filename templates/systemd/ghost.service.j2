@@ -1,0 +1,57 @@
+{#
+SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+#}
+
+[Unit]
+Description=Ghost Server ({{ ghost_identifier }})
+{% for service in ghost_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+{% for service in ghost_systemd_wanted_services_list %}
+Wants={{ service }}
+{% endfor %}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ ghost_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ ghost_identifier }} 2>/dev/null || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+      --rm \
+      --name={{ ghost_identifier }} \
+      --log-driver=none \
+      --user={{ ghost_uid }}:{{ ghost_gid }} \
+      --cap-drop=ALL \
+      --read-only \
+      --network={{ ghost_container_network }} \
+      {% if ghost_container_http_host_bind_port %}
+      -p {{ ghost_container_http_host_bind_port }}:{{ ghost_container_http_port }} \
+      {% endif %}
+      --env-file={{ ghost_base_path }}/env  \
+      --label-file={{ ghost_base_path }}/labels \
+      --mount type=bind,src={{ ghost_data_path }},dst=/var/lib/ghost/content \
+      {% for volume in ghost_container_additional_volumes %}
+      --mount type={{ volume.type | default('bind' if '/' in volume.src else 'volume') }},src={{ volume.src }},dst={{ volume.dst }}{{ (',' + volume.options) if volume.options else '' }} \
+      {% endfor %}
+      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+      {{ ghost_container_image_self_build_name if ghost_container_image_self_build else ghost_container_image }}
+
+{% for network in ghost_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ ghost_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ ghost_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ ghost_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ ghost_identifier }} 2>/dev/null || true'
+
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ ghost_identifier }}
+
+[Install]
+WantedBy=multi-user.target

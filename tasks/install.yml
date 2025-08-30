@@ -1,0 +1,124 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Ensure Ghost path exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+    owner: "{{ ghost_uid }}"
+    group: "{{ ghost_gid }}"
+  with_items:
+    - "{{ ghost_base_path }}"
+
+- name: Ensure Ghost data path exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ ghost_uid }}"
+    group: "{{ ghost_gid }}"
+  with_items:
+    - "{{ ghost_data_path }}"
+
+- name: Ensure Ghost support files installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ ghost_base_path }}/{{ item }}"
+    mode: "0640"
+    owner: "{{ ghost_uid }}"
+    group: "{{ ghost_gid }}"
+  with_items:
+    - env
+    - labels
+
+- name: Run if self-building of Ghost container image is not enabled
+  when: "not ghost_container_image_self_build | bool"
+  block:
+    - name: Ensure Ghost container image is pulled via community.docker.docker_image
+      when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
+      community.docker.docker_image:
+        name: "{{ ghost_container_image }}"
+        source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+        force_source: "{{ ghost_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+        force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else ghost_container_image_force_pull }}"
+      register: result
+      retries: "{{ devture_playbook_help_container_retries_count }}"
+      delay: "{{ devture_playbook_help_container_retries_delay }}"
+      until: result is not failed
+
+    - name: Ensure Ghost container image is pulled via ansible.builtin.command
+      when: devture_systemd_docker_base_container_image_pull_method == 'command'
+      ansible.builtin.command:
+        cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ ghost_container_image }}"
+      register: result
+      retries: "{{ devture_playbook_help_container_retries_count }}"
+      delay: "{{ devture_playbook_help_container_retries_delay }}"
+      until: result is not failed
+      changed_when: "'Downloaded newer image' in result.stdout"
+
+- name: Run if self-building of Ghost container image is enabled
+  when: ghost_container_image_self_build | bool
+  block:
+    - name: Ensure Ghost repository is present on self-build
+      ansible.builtin.git:
+        repo: "{{ ghost_container_image_self_build_repo }}"
+        version: "{{ ghost_container_image_self_build_repo_version }}"
+        dest: "{{ ghost_container_image_self_build_src_files_path }}"
+        force: "yes"
+      register: ghost_git_pull_results
+
+    - name: Ensure Ghost container image is built
+      community.docker.docker_image:
+        name: "{{ ghost_container_image_self_build_name }}"
+        source: build
+        force_source: "{{ ghost_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+        force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else ghost_git_pull_results.changed }}"
+        build:
+          dockerfile: "{{ ghost_container_image_self_build_dockerfile }}"
+          path: "{{ ghost_container_image_self_build_src_files_path }}"
+          pull: true
+
+- name: Ensure Ghost container network is created via community.docker.docker_network
+  when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
+  community.docker.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+    name: "{{ ghost_container_network }}"
+    driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
+
+- name: Ensure Ghost container network is created via ansible.builtin.command
+  when: devture_systemd_docker_base_container_network_creation_method == 'command'
+  ansible.builtin.command:
+    cmd: >-
+      {{ devture_systemd_docker_base_host_command_docker }} network create
+      {% if devture_systemd_docker_base_ipv6_enabled %}--ipv6{% endif %}
+      --driver bridge
+      {% if devture_systemd_docker_base_container_networks_driver_options %}
+      {% for key, value in devture_systemd_docker_base_container_networks_driver_options.items() %}
+      --opt {{ key }}={{ value }}
+      {% endfor %}
+      {% endif %}
+      {{ ghost_container_network }}
+  register: result
+  retries: "{{ devture_playbook_help_container_retries_count }}"
+  delay: "{{ devture_playbook_help_container_retries_delay }}"
+  until: result is not failed
+  changed_when: "'Created' in result.stdout or 'already exists' in result.stderr"
+
+- name: Ensure Ghost systemd service is installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/systemd/ghost.service.j2"
+    dest: "/etc/systemd/system/{{ ghost_identifier }}.service"
+    mode: "0644"
+  register: ghost_systemd_service_file
+
+- name: Ensure Ghost systemd service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ ghost_identifier }}"
+    state: started
+    enabled: true
+    daemon_reload: "{{ ghost_systemd_service_file.changed }}"
+  register: ghost_systemd_service_started

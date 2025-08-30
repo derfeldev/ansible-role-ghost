@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+name: Deploy to Ansible Galaxy
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Ansible Galaxy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Get tag version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Publish to Ansible Galaxy
+        env:
+          GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
+        run: |
+          ansible-galaxy role import \
+            --api-key $GALAXY_TOKEN \
+            derfeldev \
+            ansible-role-ghost
+
+      - name: Summary
+        run: |
+          echo "=== Deployment Summary ==="
+          echo "Version: ${{ steps.get_version.outputs.VERSION }}"
+          echo "Tag: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Status: Deployed to Ansible Galaxy"

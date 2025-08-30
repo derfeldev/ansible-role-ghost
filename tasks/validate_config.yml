@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Validate Ghost configuration
+  tags:
+    - setup-all
+    - setup-ghost
+    - install-all
+    - install-ghost
+  block:
+    - name: Check if Ghost hostname is set
+      ansible.builtin.fail:
+        msg: "ghost_hostname must be set to a valid hostname"
+      when: ghost_hostname | length == 0
+
+    - name: Check if Ghost UID is set
+      ansible.builtin.fail:
+        msg: "ghost_uid must be set to a valid user ID"
+      when: ghost_uid | length == 0
+
+    - name: Check if Ghost GID is set
+      ansible.builtin.fail:
+        msg: "ghost_gid must be set to a valid group ID"
+      when: ghost_gid | length == 0
+
+    - name: Check if Ghost database hostname is set
+      ansible.builtin.fail:
+        msg: "ghost_database_hostname must be set to a valid hostname"
+      when: ghost_database_hostname | length == 0
+
+    - name: Check if Ghost database password is set
+      ansible.builtin.fail:
+        msg: "ghost_database_password must be set to a valid password"
+      when: ghost_database_password | length == 0

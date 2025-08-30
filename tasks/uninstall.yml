@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Ensure Ghost systemd service is stopped and disabled
+  ansible.builtin.systemd:
+    name: "{{ ghost_identifier }}"
+    state: stopped
+    enabled: false
+  register: ghost_systemd_service_stopped
+
+- name: Ensure Ghost systemd service file is removed
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ ghost_identifier }}.service"
+    state: absent
+  register: ghost_systemd_service_file_removed
+
+- name: Reload systemd daemon if service file was removed
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: ghost_systemd_service_file_removed.changed
+  # noqa: no-handler - This is not a handler because it's conditional and specific to this task
+
+- name: Ensure Ghost container is stopped and removed
+  ansible.builtin.command:
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} stop {{ ghost_identifier }}"
+  ignore_errors: true
+  changed_when: false
+  register: ghost_container_stop_result
+
+- name: Ensure Ghost container is removed
+  ansible.builtin.command:
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} rm {{ ghost_identifier }}"
+  ignore_errors: true
+  changed_when: false
+  register: ghost_container_remove_result
+
+- name: Ensure Ghost container network is removed
+  ansible.builtin.command:
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} network rm {{ ghost_container_network }}"
+  ignore_errors: true
+  changed_when: false
+  register: ghost_network_remove_result
+
+- name: Ensure Ghost base path is removed
+  ansible.builtin.file:
+    path: "{{ ghost_base_path }}"
+    state: absent
+  when: ghost_base_path | length > 0

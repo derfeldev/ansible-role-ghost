@@ -1,0 +1,146 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+name: Autotag dependency updates
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: write  # required to push tags
+  actions: read
+
+jobs:
+  autotag:
+    name: Autotag dependency updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Fetch full history for better tag detection
+
+      - name: Set up Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all tags from origin
+        run: git fetch --tags
+
+      - name: Get current Ghost version from defaults
+        id: get_current_version
+        run: |
+          VERSION=$(grep '^ghost_version:' defaults/main.yml | sed 's/.*: *//' | tr -d "'\"")
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current Ghost version: $VERSION"
+
+      - name: Find latest Renovate Docker commit
+        id: find_renovate_commit
+        run: |
+          # Look for Renovate commits that update Docker tags
+          git log --pretty=format:'%H|%an|%s' --grep="docker tag to" --grep="update docker" --grep="bump.*ghost" -i | while IFS='|' read -r commit author subject; do
+            if [[ "$author" == "renovate[bot]" ]]; then
+              # Extract version with improved regex - match various version patterns
+              VERSION=$(echo "$subject" | sed -E 's/.*[Dd]ocker tag to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
+
+              # Alternative patterns for different commit message formats
+              if [[ "$VERSION" == "" || "$VERSION" == "$subject" ]]; then
+                VERSION=$(echo "$subject" | sed -E 's/.*bump.*ghost.*to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/i')
+              fi
+
+              if [[ "$VERSION" == "" || "$VERSION" == "$subject" ]]; then
+                VERSION=$(echo "$subject" | sed -E 's/.*update.*ghost.*to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/i')
+              fi
+
+              # Validate that we got a proper version
+              if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+                echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+                echo "commit_hash=$commit" >> $GITHUB_OUTPUT
+                echo "Found Renovate commit: $commit with version: $VERSION"
+                break
+              else
+                echo "Warning: Could not extract valid version from: $subject"
+                echo "Extracted: $VERSION"
+              fi
+            fi
+          done
+
+      - name: Determine version to tag
+        id: determine_version
+        run: |
+          if [[ "${{ steps.find_renovate_commit.outputs.new_version }}" != "" ]]; then
+            # Use version from Renovate commit
+            VERSION="${{ steps.find_renovate_commit.outputs.new_version }}"
+            echo "Using version from Renovate commit: $VERSION"
+          else
+            # Use current version from defaults/main.yml
+            VERSION="${{ steps.get_current_version.outputs.current_version }}"
+            echo "Using current version from defaults: $VERSION"
+          fi
+
+          # Create tag name with build number
+          BUILD_NUMBER=0
+          while git tag -l "${VERSION}-${BUILD_NUMBER}" | grep -q "${VERSION}-${BUILD_NUMBER}"; do
+            BUILD_NUMBER=$((BUILD_NUMBER + 1))
+          done
+
+          TAG_NAME="${VERSION}-${BUILD_NUMBER}"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Final tag name: $TAG_NAME"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          TAG="${{ steps.determine_version.outputs.tag_name }}"
+          if git tag -l "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists."
+            echo "already_tagged=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $TAG does not exist yet."
+            echo "already_tagged=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.already_tagged == 'false'
+        run: |
+          TAG="${{ steps.determine_version.outputs.tag_name }}"
+          VERSION="${{ steps.determine_version.outputs.version }}"
+          BUILD_NUMBER="${{ steps.determine_version.outputs.build_number }}"
+
+          # Use HEAD commit if no specific Renovate commit found
+          if [[ "${{ steps.find_renovate_commit.outputs.commit_hash }}" != "" ]]; then
+            HASH="${{ steps.find_renovate_commit.outputs.commit_hash }}"
+            echo "Tagging Renovate commit $HASH with $TAG"
+          else
+            HASH="HEAD"
+            echo "Tagging HEAD commit with $TAG (current version: $VERSION)"
+          fi
+
+          # Create annotated tag with message
+          git tag -a "$TAG" "$HASH" -m "Release $TAG - Ghost v$VERSION"
+
+          # Push the tag
+          git push origin "$TAG"
+          echo "Successfully created and pushed tag: $TAG"
+
+      - name: Summary
+        run: |
+          echo "=== Autotag Summary ==="
+          echo "Current Ghost version: ${{ steps.get_current_version.outputs.current_version }}"
+          if [[ "${{ steps.find_renovate_commit.outputs.new_version }}" != "" ]]; then
+            echo "Renovate update version: ${{ steps.find_renovate_commit.outputs.new_version }}"
+            echo "Renovate commit: ${{ steps.find_renovate_commit.outputs.commit_hash }}"
+          else
+            echo "No Renovate updates found, using current version"
+          fi
+          echo "Tag created: ${{ steps.determine_version.outputs.tag_name }}"
+          echo "Build number: ${{ steps.determine_version.outputs.build_number }}"
