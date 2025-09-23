@@ -25,8 +25,9 @@ galaxy_info:
     - blog
     - cms
     - docker
-    - mash-playbook
+    - mashplaybook
     - email
-  dependencies:
-    - role: com.devture.ansible.role.playbook_help
-    - role: com.devture.ansible.role.systemd_docker_base
+
+dependencies:
+  - role: com.devture.ansible.role.playbook_help
+  - role: com.devture.ansible.role.systemd_docker_base
