@@ -10,6 +10,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   clean-whitespace:
     runs-on: ubuntu-latest
