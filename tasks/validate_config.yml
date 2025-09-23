@@ -34,3 +34,26 @@
       ansible.builtin.fail:
         msg: "ghost_database_password must be set to a valid password"
       when: ghost_database_password | length == 0
+
+    - name: Validate exim-relay configuration when enabled
+      when: exim_relay_enabled | bool
+      block:
+        - name: Check if exim-relay SMTP host is set
+          ansible.builtin.fail:
+            msg: "exim_relay_smtp_host must be set when exim_relay_enabled is true"
+          when: exim_relay_smtp_host | length == 0
+
+        - name: Check if exim-relay SMTP username is set
+          ansible.builtin.fail:
+            msg: "exim_relay_smtp_username must be set when exim_relay_enabled is true"
+          when: exim_relay_smtp_username | length == 0
+
+        - name: Check if exim-relay SMTP password is set
+          ansible.builtin.fail:
+            msg: "exim_relay_smtp_password must be set when exim_relay_enabled is true"
+          when: exim_relay_smtp_password | length == 0
+
+        - name: Check if exim-relay from email is set
+          ansible.builtin.fail:
+            msg: "exim_relay_from_email must be set when exim_relay_enabled is true"
+          when: exim_relay_from_email | length == 0

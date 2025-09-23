@@ -4,7 +4,7 @@ galaxy_info:
   company: DIMOV
   role_name: ghost
   namespace: derfeldev
-  description: Ansible role to install Ghost, a modern open source publishing platform.
+  description: Ansible role to install Ghost, a modern open source publishing platform. Supports mash-playbook integration with exim-relay email functionality.
   platforms:
     - name: Debian
       versions:
@@ -20,3 +20,14 @@ galaxy_info:
         - all
   license: AGPL-3.0-or-later
   min_ansible_version: "2.1"
+  galaxy_tags:
+    - ghost
+    - blog
+    - cms
+    - docker
+    - mash-playbook
+    - exim-relay
+    - email
+  dependencies:
+    - role: com.devture.ansible.role.playbook_help
+    - role: com.devture.ansible.role.systemd_docker_base

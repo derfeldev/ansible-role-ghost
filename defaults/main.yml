@@ -185,3 +185,27 @@ ghost_node_env: production
 # Additional environment variables to pass to the Ghost container.
 # You can use this to further influence the default configuration.
 ghost_environment_variables_additional_variables: ''
+
+# Mash-playbook integration settings
+mash_playbook_enabled: false
+mash_playbook_role_name: 'exim_relay'
+
+# Exim-relay integration for mash-playbook
+exim_relay_enabled: false
+exim_relay_smtp_host: ''
+exim_relay_smtp_port: 587
+exim_relay_smtp_username: ''
+exim_relay_smtp_password: ''
+exim_relay_smtp_tls: true
+exim_relay_from_email: ''
+exim_relay_from_name: ''
+
+# Ghost email configuration for exim-relay
+ghost_mail_transport: 'SMTP'
+ghost_mail_options_host: "{{ exim_relay_smtp_host if exim_relay_enabled else '' }}"
+ghost_mail_options_port: "{{ exim_relay_smtp_port if exim_relay_enabled else 587 }}"
+ghost_mail_options_secure: "{{ exim_relay_smtp_tls if exim_relay_enabled else true }}"
+ghost_mail_options_auth_user: "{{ exim_relay_smtp_username if exim_relay_enabled else '' }}"
+ghost_mail_options_auth_pass: "{{ exim_relay_smtp_password if exim_relay_enabled else '' }}"
+ghost_mail_from: "{{ exim_relay_from_email if exim_relay_enabled else '' }}"
+ghost_mail_from_name: "{{ exim_relay_from_name if exim_relay_enabled else '' }}"
