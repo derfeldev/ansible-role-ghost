@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
-#
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
----
 name: Deploy to Ansible Galaxy
 
 on:
@@ -49,7 +47,7 @@ jobs:
             derfeldev \
             ansible-role-ghost
 
-      - name: Summary
+      - name: Deployment Summary
         run: |
           echo "=== Deployment Summary ==="
           echo "Version: ${{ steps.get_version.outputs.VERSION }}"
