@@ -10,7 +10,7 @@
   "hostRules": [
     {
       "hostType": "github",
-      "token": "{{ secrets.RENOVATE_TOKEN }}"
+      "token": "{{ secrets.MEND_RENOVATE_TOKEN }}"
     }
   ],
   "packageRules": [
