@@ -34,7 +34,8 @@ jobs:
       - name: Get tag version
         id: get_version
         run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          VERSION="${GITHUB_REF#refs/tags/}"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Detected tag version: $VERSION"
 
       - name: Publish to Ansible Galaxy
