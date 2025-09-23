@@ -78,11 +78,11 @@ jobs:
         id: check_tag
         run: |
           TAG="${{ steps.determine_version.outputs.tag_name }}"
-          if git tag -l "$TAG" | grep -q "$TAG"; then
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
             echo "already_tagged=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists. Skipping tag creation."
           else
             echo "already_tagged=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Create and push tag
         if: steps.check_tag.outputs.already_tagged == 'false'
