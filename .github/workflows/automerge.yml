@@ -19,7 +19,7 @@ jobs:
     name: Auto-merge Renovate PRs
     runs-on: ubuntu-latest
     if: github.actor == 'renovate[bot]' || github.actor == 'app/renovate'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -29,10 +29,10 @@ jobs:
           # Check if PR is from Renovate and has automerge enabled in config
           if [[ "${{ github.event.pull_request.user.login }}" == "renovate[bot]" || "${{ github.event.pull_request.user.login }}" == "app/renovate" ]]; then
             echo "Enabling auto-merge for Renovate PR #${{ github.event.pull_request.number }}"
-            
+
             # Enable auto-merge with squash strategy
             gh pr merge ${{ github.event.pull_request.number }} --squash --auto
-            
+
             echo "Auto-merge enabled successfully"
           else
             echo "PR is not from Renovate, skipping auto-merge"
