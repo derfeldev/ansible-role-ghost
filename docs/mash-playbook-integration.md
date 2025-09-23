@@ -8,11 +8,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This Ghost Ansible role has been adapted for integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and supports email functionality.
 
-**Important**: See [CHANGELOG.md](../CHANGELOG.md) for migration guide and breaking changes, especially regarding the new `ghost_database_type` variable.
+**Important**: See [CHANGELOG.md](../CHANGELOG.md) for migration guide and breaking changes.
 
 ## This service requires the following other services:
 
-- **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data. Set `ghost_database_type` to `'mysql'` or `'postgres'` accordingly.
+- **Database Service**: A MySQL 8 database is required for storing Ghost content and configuration data. Ghost officially supports only MySQL 8 for production environments.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
 
@@ -26,7 +26,6 @@ To enable mash-playbook integration, set the following variables:
 
 ```yaml
 # Enable mail functionality
-ghost_database_type: 'postgres'  # or 'mysql'
 ghost_mail_enabled: true
 ghost_mail_transport: 'SMTP'
 ghost_mail_options_host: 'localhost'
@@ -54,7 +53,6 @@ Add this role to your mash-playbook configuration:
 ```yaml
 - role: ghost
   vars:
-    ghost_database_type: 'postgres'  # or 'mysql'
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
     ghost_mail_options_auth_user: 'ghost@yourdomain.com'

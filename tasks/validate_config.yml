@@ -30,15 +30,10 @@
         msg: "ghost_database_hostname must be set to a valid hostname"
       when: ghost_database_hostname | length == 0
 
-    - name: Check if Ghost database password is set
-      ansible.builtin.fail:
-        msg: "ghost_database_password must be set to a valid password"
-      when: ghost_database_password | length == 0
-
-    - name: Validate database type
-      ansible.builtin.fail:
-        msg: "ghost_database_type must be either 'mysql' or 'postgres'"
-      when: ghost_database_type not in ['mysql', 'postgres']
+- name: Check if Ghost database password is set
+  ansible.builtin.fail:
+    msg: "ghost_database_password must be set to a valid password"
+  when: ghost_database_password | length == 0
 
     - name: Validate mail configuration when enabled
       when: ghost_mail_enabled | bool

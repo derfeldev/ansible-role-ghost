@@ -10,7 +10,7 @@ This is an [Ansible](https://www.ansible.com/) role which installs [Ghost](https
 
 ## This service requires the following other services:
 
-- **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data. Set `ghost_database_type` to `'mysql'` or `'postgres'` accordingly.
+- **Database Service**: A MySQL 8 database is required for storing Ghost content and configuration data. Ghost officially supports only MySQL 8 for production environments.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
 
@@ -32,7 +32,6 @@ This role supports integration with the [mash-playbook](https://github.com/mothe
 ```yaml
 - role: ghost
   vars:
-    ghost_database_type: 'mysql'  # or 'postgres'
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
     ghost_mail_options_auth_user: 'ghost@yourdomain.com'

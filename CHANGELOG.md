@@ -13,47 +13,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- PostgreSQL database support via `ghost_database_type` variable
-- Configurable database port based on database type (3306 for MySQL, 5432 for PostgreSQL)
-- Database type validation in configuration validation tasks
-- Mash-playbook integration documentation with PostgreSQL examples
-
 ### Changed
-- Database client configuration is now dynamic based on `ghost_database_type`
-- Default database port is now conditional (3306 for MySQL, 5432 for PostgreSQL)
-- Documentation updated to reflect PostgreSQL support
+- **BREAKING**: Removed PostgreSQL support - Ghost officially supports only MySQL 8
+- Database configuration simplified to MySQL-only
+- Updated documentation to reflect MySQL-only support
+- Removed `ghost_database_type` variable (no longer needed)
 
 ### Migration Guide
 
-#### From Previous Versions
+#### From Previous Versions with PostgreSQL Support
 
-**Breaking Change**: Database configuration has been updated to support both MySQL and PostgreSQL.
+**Breaking Change**: PostgreSQL support has been removed as Ghost CMS officially supports only MySQL 8 for production environments.
 
-##### Old Configuration (MySQL only)
+##### Previous Configuration (with PostgreSQL support)
 ```yaml
+ghost_database_type: 'postgres'  # ← This is no longer supported
 ghost_database_hostname: 'localhost'
-ghost_database_port: 3306
+ghost_database_port: 5432
 ghost_database_username: 'ghost'
 ghost_database_password: 'password'
 ghost_database_name: 'ghost'
 ```
 
-##### New Configuration (MySQL)
+##### New Configuration (MySQL only)
 ```yaml
-ghost_database_type: 'mysql'  # Required: specify database type
 ghost_database_hostname: 'localhost'
-ghost_database_port: 3306  # Optional: defaults to 3306 for MySQL
-ghost_database_username: 'ghost'
-ghost_database_password: 'password'
-ghost_database_name: 'ghost'
-```
-
-##### New Configuration (PostgreSQL)
-```yaml
-ghost_database_type: 'postgres'  # Required: specify database type
-ghost_database_hostname: 'localhost'
-ghost_database_port: 5432  # Optional: defaults to 5432 for PostgreSQL
+ghost_database_port: 3306  # Optional: defaults to 3306
 ghost_database_username: 'ghost'
 ghost_database_password: 'password'
 ghost_database_name: 'ghost'
@@ -61,44 +46,37 @@ ghost_database_name: 'ghost'
 
 ##### Migration Steps
 
-1. **Add the required `ghost_database_type` variable**:
-   - For MySQL: `ghost_database_type: 'mysql'`
-   - For PostgreSQL: `ghost_database_type: 'postgres'`
-
-2. **Optional: Update port configuration**:
-   - MySQL: `ghost_database_port: 3306` (default)
-   - PostgreSQL: `ghost_database_port: 5432` (default)
-   - The port will be automatically set based on `ghost_database_type` if not specified
-
-3. **Test the configuration**:
+1. **Remove `ghost_database_type` variable** - it's no longer needed
+2. **Update database port** to 3306 (MySQL default) if using PostgreSQL
+3. **Migrate data** from PostgreSQL to MySQL if needed
+4. **Test the configuration**:
    ```bash
    ansible-playbook your-playbook.yml --check
    ```
 
-##### Backward Compatibility
+##### Important Notes
 
-- **MySQL configurations**: Add `ghost_database_type: 'mysql'` to maintain current behavior
-- **Existing playbooks**: Will continue to work with MySQL after adding the database type variable
-- **No data migration required**: This is a configuration change only
+- **Ghost CMS officially supports only MySQL 8** for production environments
+- PostgreSQL support was dropped in Ghost 1.0 (2017)
+- This change aligns the Ansible role with Ghost's official database support
+- **Data migration required**: If you were using PostgreSQL, you'll need to migrate your data to MySQL
 
 ##### Mash-playbook Integration
 
-For mash-playbook users, you can now use either:
+For mash-playbook users, use MySQL integration:
 
-**MySQL Integration**:
 ```yaml
 - role: ghost
   vars:
-    ghost_database_type: 'mysql'
-    # ... other MySQL configuration
-```
-
-**PostgreSQL Integration** (with ansible-role-postgres):
-```yaml
-- role: ghost
-  vars:
-    ghost_database_type: 'postgres'
-    # ... other PostgreSQL configuration
+    ghost_mail_enabled: true
+    ghost_mail_options_host: 'localhost'
+    ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+    ghost_mail_options_auth_pass: '{{ vault_ghost_email_password }}'
+    ghost_mail_from: 'ghost@yourdomain.com'
+    ghost_mail_from_name: 'Ghost Blog'
+    ghost_hostname: 'blog.yourdomain.com'
+    ghost_database_hostname: 'localhost'
+    ghost_database_password: '{{ vault_ghost_db_password }}'
 ```
 
 ## [Previous Versions]
