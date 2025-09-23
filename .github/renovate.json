@@ -7,6 +7,12 @@
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "platformAutomerge": true,
+  "hostRules": [
+    {
+      "hostType": "github",
+      "token": "{{ secrets.RENOVATE_TOKEN }}"
+    }
+  ],
   "packageRules": [
     {
       "groupName": "docker images",
