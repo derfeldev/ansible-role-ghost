@@ -17,20 +17,19 @@ Check [defaults/main.yml](defaults/main.yml) for the full list of supported opti
 
 ## Mash-Playbook Integration
 
-This role supports integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and includes exim-relay email functionality. See [docs/mash-playbook-integration.md](docs/mash-playbook-integration.md) for detailed integration instructions.
+This role supports integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and includes email functionality. See [docs/mash-playbook-integration.md](docs/mash-playbook-integration.md) for detailed integration instructions.
 
 ### Quick Start for Mash-Playbook
 
 ```yaml
 - role: ghost
   vars:
-    mash_playbook_enabled: true
-    exim_relay_enabled: true
-    exim_relay_smtp_host: 'localhost'
-    exim_relay_smtp_username: 'ghost@yourdomain.com'
-    exim_relay_smtp_password: '{{ vault_ghost_email_password }}'
-    exim_relay_from_email: 'ghost@yourdomain.com'
-    exim_relay_from_name: 'Ghost Blog'
+    ghost_mail_enabled: true
+    ghost_mail_options_host: 'localhost'
+    ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+    ghost_mail_options_auth_pass: '{{ vault_ghost_email_password }}'
+    ghost_mail_from: 'ghost@yourdomain.com'
+    ghost_mail_from_name: 'Ghost Blog'
     ghost_hostname: 'blog.yourdomain.com'
     ghost_database_hostname: 'localhost'
     ghost_database_password: '{{ vault_ghost_db_password }}'

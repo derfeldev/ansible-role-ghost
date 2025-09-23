@@ -35,25 +35,25 @@
         msg: "ghost_database_password must be set to a valid password"
       when: ghost_database_password | length == 0
 
-    - name: Validate exim-relay configuration when enabled
-      when: exim_relay_enabled | bool
+    - name: Validate mail configuration when enabled
+      when: ghost_mail_enabled | bool
       block:
-        - name: Check if exim-relay SMTP host is set
+        - name: Check if mail host is set
           ansible.builtin.fail:
-            msg: "exim_relay_smtp_host must be set when exim_relay_enabled is true"
-          when: exim_relay_smtp_host | length == 0
+            msg: "ghost_mail_options_host must be set when ghost_mail_enabled is true"
+          when: ghost_mail_options_host | length == 0
 
-        - name: Check if exim-relay SMTP username is set
+        - name: Check if mail username is set
           ansible.builtin.fail:
-            msg: "exim_relay_smtp_username must be set when exim_relay_enabled is true"
-          when: exim_relay_smtp_username | length == 0
+            msg: "ghost_mail_options_auth_user must be set when ghost_mail_enabled is true"
+          when: ghost_mail_options_auth_user | length == 0
 
-        - name: Check if exim-relay SMTP password is set
+        - name: Check if mail password is set
           ansible.builtin.fail:
-            msg: "exim_relay_smtp_password must be set when exim_relay_enabled is true"
-          when: exim_relay_smtp_password | length == 0
+            msg: "ghost_mail_options_auth_pass must be set when ghost_mail_enabled is true"
+          when: ghost_mail_options_auth_pass | length == 0
 
-        - name: Check if exim-relay from email is set
+        - name: Check if mail from email is set
           ansible.builtin.fail:
-            msg: "exim_relay_from_email must be set when exim_relay_enabled is true"
-          when: exim_relay_from_email | length == 0
+            msg: "ghost_mail_from must be set when ghost_mail_enabled is true"
+          when: ghost_mail_from | length == 0
