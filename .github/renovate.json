@@ -31,7 +31,7 @@
       "automergeType": "branch",
       "commitMessageAction": "update",
       "commitMessageTopic": "Ghost Docker image",
-      "commitMessageExtra": "to {{newVersion}}",
+      "commitMessageExtra": "to v{{newVersion}}",
       "commitMessagePrefix": "chore(deps):",
       "schedule": ["before 2am on monday"]
     },
@@ -43,7 +43,7 @@
       "automerge": false,
       "commitMessageAction": "update",
       "commitMessageTopic": "Ghost Docker image",
-      "commitMessageExtra": "to v{{newMajor}}",
+      "commitMessageExtra": "to v{{newVersion}}",
       "commitMessagePrefix": "chore(deps):",
       "schedule": ["before 2am on monday"]
     }
