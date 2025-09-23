@@ -4,7 +4,8 @@
   "labels": ["dependencies"],
   "dependencyDashboard": false,
   "automerge": true,
-  "automergeType": "branch",
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
   "platformAutomerge": true,
   "packageRules": [
     {
@@ -18,7 +19,8 @@
       "matchFileNames": [".pre-commit-config.yaml"],
       "enabled": true,
       "automerge": true,
-      "automergeType": "branch",
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
       "schedule": ["* * 1 * *"],
       "automergeSchedule": ["* * 1 * *"]
     },
@@ -28,7 +30,8 @@
       "matchUpdateTypes": ["patch", "minor"],
       "enabled": true,
       "automerge": true,
-      "automergeType": "branch",
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
       "commitMessageAction": "update",
       "commitMessageTopic": "Ghost Docker image",
       "commitMessageExtra": "to v{{newVersion}}",
@@ -46,12 +49,22 @@
       "commitMessageExtra": "to v{{newVersion}}",
       "commitMessagePrefix": "chore(deps):",
       "schedule": ["before 2am on monday"]
+    },
+    {
+      "groupName": "GitHub Actions",
+      "matchCategories": ["github-actions"],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 2am on monday"]
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["^defaults/main\\.yml$"],
+      "fileMatch": ["^defaults/main\\.yml$"],
       "matchStrings": [
         "# renovate: datasource=docker depName=ghost versioning=semver\\s+ghost_version:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
       ],
