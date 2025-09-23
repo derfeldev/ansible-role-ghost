@@ -1,15 +1,35 @@
----
-name: pre-commit
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-on: [push, pull_request]
+name: Run pre-commit hooks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    name: Run pre-commit
+  pre-commit:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install pre-commit
+        run: python -m pip install --upgrade pre-commit
+
       - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: pre-commit run --all-files --show-diff-on-failure

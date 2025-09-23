@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Renovate Automerge
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Every Monday at 2am
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Automerge Renovate PRs
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          merge-method: squash
