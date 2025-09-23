@@ -8,6 +8,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This Ghost Ansible role has been adapted for integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and supports email functionality.
 
+**Important**: See [CHANGELOG.md](../CHANGELOG.md) for migration guide and breaking changes, especially regarding the new `ghost_database_type` variable.
+
 ## This service requires the following other services:
 
 - **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data. Set `ghost_database_type` to `'mysql'` or `'postgres'` accordingly.

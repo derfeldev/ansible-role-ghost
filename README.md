@@ -21,6 +21,8 @@ This role *implicitly* depends on:
 
 Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
 
+See [CHANGELOG.md](CHANGELOG.md) for migration guide and breaking changes.
+
 ## Mash-Playbook Integration
 
 This role supports integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and includes email functionality. See [docs/mash-playbook-integration.md](docs/mash-playbook-integration.md) for detailed integration instructions.
