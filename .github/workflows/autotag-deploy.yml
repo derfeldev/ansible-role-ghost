@@ -1,5 +1,6 @@
-# SPDX-FileCopyrightText: 2025 derfeldev
-# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 name: Autotag and Deploy Ghost Role
 
