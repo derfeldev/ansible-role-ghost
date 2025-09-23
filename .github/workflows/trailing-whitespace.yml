@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Clean Trailing Whitespace
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  clean-whitespace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Remove trailing whitespace
+        run: |
+          git ls-files | xargs sed -i 's/[ \t]*$//'
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit if there are changes
+          if ! git diff --cached --quiet; then
+            git commit -m "Remove trailing whitespace"
+            git push
+          else
+            echo "No trailing whitespace found"
+          fi
