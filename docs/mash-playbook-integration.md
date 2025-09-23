@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Ghost Role for Mash-Playbook
 
 This Ghost Ansible role has been adapted for integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and supports email functionality.
