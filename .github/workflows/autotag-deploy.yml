@@ -84,7 +84,7 @@ jobs:
           else
             echo "already_tagged=false" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Create and push tag
         if: steps.check_tag.outputs.already_tagged == 'false'
         run: |
