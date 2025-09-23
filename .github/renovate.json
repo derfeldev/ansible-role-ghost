@@ -36,7 +36,7 @@
       "commitMessageTopic": "Ghost Docker image",
       "commitMessageExtra": "to v{{newVersion}}",
       "commitMessagePrefix": "chore(deps):",
-      "schedule": ["before 2am on monday"]
+      "schedule": ["at any time"]
     },
     {
       "groupName": "Major updates",
@@ -48,7 +48,7 @@
       "commitMessageTopic": "Ghost Docker image",
       "commitMessageExtra": "to v{{newVersion}}",
       "commitMessagePrefix": "chore(deps):",
-      "schedule": ["before 2am on monday"]
+      "schedule": ["at any time"]
     },
     {
       "groupName": "GitHub Actions",
@@ -58,7 +58,7 @@
       "automergeType": "pr",
       "automergeStrategy": "squash",
       "matchUpdateTypes": ["patch", "minor"],
-      "schedule": ["before 2am on monday"]
+      "schedule": ["at any time"]
     }
   ],
   "customManagers": [
