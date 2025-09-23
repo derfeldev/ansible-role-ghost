@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
-# SPDX-License-Identifier: AGPL-3.0-or-later
-
 name: Autotag and Deploy Ghost Role
 
 on:
@@ -23,20 +20,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Git config
+      - name: Setup Git config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch all tags from origin
+      - name: Fetch all tags
         run: git fetch --tags
 
-      - name: Get current Ghost version from defaults
+      - name: Get current Ghost version
         id: get_current_version
         run: |
           VERSION=$(grep '^ghost_version:' defaults/main.yml | sed 's/.*: *//' | tr -d "'\"")
           echo "current_version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Current Ghost version: $VERSION"
 
       - name: Find latest Renovate Docker commit
         id: find_renovate_commit
@@ -44,16 +40,12 @@ jobs:
           git log --pretty=format:'%H|%an|%s' --grep="docker tag to" --grep="update docker" --grep="bump.*ghost" -i | while IFS='|' read -r commit author subject; do
             if [[ "$author" == "renovate[bot]" ]]; then
               VERSION=$(echo "$subject" | sed -E 's/.*[Dd]ocker tag to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
-              if [[ "$VERSION" == "" || "$VERSION" == "$subject" ]]; then
+              if [[ "$VERSION" == "" ]]; then
                 VERSION=$(echo "$subject" | sed -E 's/.*bump.*ghost.*to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/i')
-              fi
-              if [[ "$VERSION" == "" || "$VERSION" == "$subject" ]]; then
-                VERSION=$(echo "$subject" | sed -E 's/.*update.*ghost.*to v?([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/i')
               fi
               if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
                 echo "new_version=$VERSION" >> $GITHUB_OUTPUT
                 echo "commit_hash=$commit" >> $GITHUB_OUTPUT
-                echo "Found Renovate commit: $commit with version: $VERSION"
                 break
               fi
             fi
@@ -78,7 +70,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-      - name: Check if tag already exists
+      - name: Check if tag exists
         id: check_tag
         run: |
           TAG="${{ steps.determine_version.outputs.tag_name }}"
@@ -93,12 +85,10 @@ jobs:
         run: |
           TAG="${{ steps.determine_version.outputs.tag_name }}"
           VERSION="${{ steps.determine_version.outputs.version }}"
-          BUILD_NUMBER="${{ steps.determine_version.outputs.build_number }}"
           HASH="${{ steps.find_renovate_commit.outputs.commit_hash }}"
           if [[ "$HASH" == "" ]]; then HASH="HEAD"; fi
           git tag -a "$TAG" "$HASH" -m "Release $TAG - Ghost v$VERSION"
           git push origin "$TAG"
-          echo "Successfully created and pushed tag: $TAG"
 
       - name: Publish to Ansible Galaxy
         if: steps.check_tag.outputs.already_tagged == 'false'
@@ -112,10 +102,6 @@ jobs:
 
       - name: Summary
         run: |
-          echo "=== Autotag and Deploy Summary ==="
           echo "Ghost version: ${{ steps.determine_version.outputs.version }}"
           echo "Tag: ${{ steps.determine_version.outputs.tag_name }}"
           echo "Build number: ${{ steps.determine_version.outputs.build_number }}"
-          if [[ "${{ steps.find_renovate_commit.outputs.new_version }}" != "" ]]; then
-            echo "Renovate commit: ${{ steps.find_renovate_commit.outputs.commit_hash }}"
-          fi
