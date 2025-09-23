@@ -10,7 +10,7 @@ This Ghost Ansible role has been adapted for integration with the [mash-playbook
 
 ## This service requires the following other services:
 
-- **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data.
+- **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data. Set `ghost_database_type` to `'mysql'` or `'postgres'` accordingly.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
 
@@ -24,6 +24,7 @@ To enable mash-playbook integration, set the following variables:
 
 ```yaml
 # Enable mail functionality
+ghost_database_type: 'postgres'  # or 'mysql'
 ghost_mail_enabled: true
 ghost_mail_transport: 'SMTP'
 ghost_mail_options_host: 'localhost'
@@ -51,6 +52,7 @@ Add this role to your mash-playbook configuration:
 ```yaml
 - role: ghost
   vars:
+    ghost_database_type: 'postgres'  # or 'mysql'
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
     ghost_mail_options_auth_user: 'ghost@yourdomain.com'

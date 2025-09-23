@@ -172,8 +172,9 @@ ghost_systemd_wanted_services_list_auto: []
 ghost_systemd_wanted_services_list_custom: []
 
 # Ghost database configuration
+ghost_database_type: 'mysql'  # Options: 'mysql' or 'postgres'
 ghost_database_hostname: ''
-ghost_database_port: 3306
+ghost_database_port: "{{ '3306' if ghost_database_type == 'mysql' else '5432' }}"
 ghost_database_name: ghost
 ghost_database_username: ghost
 ghost_database_password: ''
