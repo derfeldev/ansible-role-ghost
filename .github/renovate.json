@@ -1,60 +1,57 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":semanticCommitsDisabled"
-  ],
-  "labels": [
-    "dependencies"
-  ],
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "labels": ["dependencies"],
+  "dependencyDashboard": false,
+  "automerge": true,
+  "automergeType": "branch",
+  "platformAutomerge": true,
   "packageRules": [
     {
-      "matchCategories": [
-        "docker"
-      ],
+      "groupName": "docker images",
+      "matchCategories": ["docker"],
       "enabled": true,
       "pinDigests": true
     },
     {
-      "matchFileNames": [
-        ".pre-commit-config.yaml"
-      ],
+      "groupName": "pre-commit hooks",
+      "matchFileNames": [".pre-commit-config.yaml"],
       "enabled": true,
       "automerge": true,
       "automergeType": "branch",
-      "schedule": [
-        "* * 1 * *"
-      ],
-      "automergeSchedule": [
-        "* * 1 * *"
-      ]
+      "schedule": ["* * 1 * *"],
+      "automergeSchedule": ["* * 1 * *"]
     },
     {
-      "matchFileNames": [
-        "defaults/main.yml"
-      ],
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch"
-      ],
+      "groupName": "Ghost Docker image",
+      "matchFileNames": ["defaults/main.yml"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "branch",
+      "commitMessageAction": "update",
+      "commitMessageTopic": "Ghost Docker image",
+      "commitMessageExtra": "to {{newVersion}}",
+      "commitMessagePrefix": "chore(deps):",
+      "schedule": ["before 2am on monday"]
+    },
+    {
+      "groupName": "Major updates",
+      "matchFileNames": ["defaults/main.yml"],
+      "matchUpdateTypes": ["major"],
       "enabled": true,
       "automerge": false,
       "commitMessageAction": "update",
       "commitMessageTopic": "Ghost Docker image",
-      "commitMessageExtra": "to {{#if isMajor}}v{{newMajor}}{{else}}v{{newVersion}}{{/if}}",
+      "commitMessageExtra": "to v{{newMajor}}",
       "commitMessagePrefix": "chore(deps):",
-      "schedule": [
-        "before 2am on monday"
-      ]
+      "schedule": ["before 2am on monday"]
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^defaults/main\\.yml$/"
-      ],
+      "managerFilePatterns": ["/^defaults/main\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=docker depName=ghost versioning=semver\\s+ghost_version:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
       ],
