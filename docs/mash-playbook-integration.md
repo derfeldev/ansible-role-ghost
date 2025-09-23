@@ -8,6 +8,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This Ghost Ansible role has been adapted for integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and supports email functionality.
 
+## This service requires the following other services:
+
+- **Database Service**: A MySQL or PostgreSQL database is required for storing Ghost content and configuration data.
+- **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
+- **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
+
 ## Mash-Playbook Integration
 
 When used as part of the mash-playbook, this role integrates with email services to provide email functionality for Ghost.
