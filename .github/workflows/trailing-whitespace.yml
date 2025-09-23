@@ -8,30 +8,49 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   clean-whitespace:
+    name: Check and Fix Trailing Whitespace
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          ref: main
           fetch-depth: 0
 
-      - name: Remove trailing whitespace
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run trailing-whitespace hook
+        id: remove_whitespace
         run: |
-          git ls-files | xargs sed -i 's/[ \t]*$//'
+          pre-commit run trailing-whitespace --all-files
+          # detect if changes were made
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push fixes
+        if: steps.remove_whitespace.outputs.changes_detected == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "Remove trailing whitespace"
-            git push origin HEAD:main
-          else
-            echo "No trailing whitespace found"
-          fi
+          git commit -m "Fix trailing whitespace"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git push origin HEAD:main
