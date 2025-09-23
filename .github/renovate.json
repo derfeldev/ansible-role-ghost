@@ -51,7 +51,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^defaults/main\\.yml$/"],
+      "managerFilePatterns": ["^defaults/main\\.yml$"],
       "matchStrings": [
         "# renovate: datasource=docker depName=ghost versioning=semver\\s+ghost_version:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
       ],
