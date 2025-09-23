@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - **BREAKING**: Removed PostgreSQL support - Ghost officially supports only MySQL 8
 - Database configuration simplified to MySQL-only
 - Updated documentation to reflect MySQL-only support
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Breaking Change**: PostgreSQL support has been removed as Ghost CMS officially supports only MySQL 8 for production environments.
 
 ##### Previous Configuration (with PostgreSQL support)
+
 ```yaml
 ghost_database_type: 'postgres'  # ← This is no longer supported
 ghost_database_hostname: 'localhost'
@@ -36,6 +38,7 @@ ghost_database_name: 'ghost'
 ```
 
 ##### New Configuration (MySQL only)
+
 ```yaml
 ghost_database_hostname: 'localhost'
 ghost_database_port: 3306  # Optional: defaults to 3306
@@ -50,6 +53,7 @@ ghost_database_name: 'ghost'
 2. **Update database port** to 3306 (MySQL default) if using PostgreSQL
 3. **Migrate data** from PostgreSQL to MySQL if needed
 4. **Test the configuration**:
+
    ```bash
    ansible-playbook your-playbook.yml --check
    ```
@@ -82,6 +86,7 @@ For mash-playbook users, use MySQL integration:
 ## [Previous Versions]
 
 ### [1.0.0] - Initial Release
+
 - Initial Ghost role implementation
 - MySQL database support
 - Docker container deployment

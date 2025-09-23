@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+collections:
+  - name: community.docker
+    version: ">=3.0.0"

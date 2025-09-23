@@ -10,7 +10,7 @@ This Ghost Ansible role has been adapted for integration with the [mash-playbook
 
 **Important**: See [CHANGELOG.md](../CHANGELOG.md) for migration guide and breaking changes.
 
-## This service requires the following other services:
+## This service requires the following other services
 
 - **Database Service**: A MySQL 8 database is required for storing Ghost content and configuration data. Ghost officially supports only MySQL 8 for production environments.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.

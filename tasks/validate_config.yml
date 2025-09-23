@@ -35,25 +35,25 @@
     msg: "ghost_database_password must be set to a valid password"
   when: ghost_database_password | length == 0
 
-    - name: Validate mail configuration when enabled
-      when: ghost_mail_enabled | bool
-      block:
-        - name: Check if mail host is set
-          ansible.builtin.fail:
-            msg: "ghost_mail_options_host must be set when ghost_mail_enabled is true"
-          when: ghost_mail_options_host | length == 0
+- name: Validate mail configuration when enabled
+  when: ghost_mail_enabled | bool
+  block:
+    - name: Check if mail host is set
+      ansible.builtin.fail:
+        msg: "ghost_mail_options_host must be set when ghost_mail_enabled is true"
+      when: ghost_mail_options_host | length == 0
 
-        - name: Check if mail username is set
-          ansible.builtin.fail:
-            msg: "ghost_mail_options_auth_user must be set when ghost_mail_enabled is true"
-          when: ghost_mail_options_auth_user | length == 0
+    - name: Check if mail username is set
+      ansible.builtin.fail:
+        msg: "ghost_mail_options_auth_user must be set when ghost_mail_enabled is true"
+      when: ghost_mail_options_auth_user | length == 0
 
-        - name: Check if mail password is set
-          ansible.builtin.fail:
-            msg: "ghost_mail_options_auth_pass must be set when ghost_mail_enabled is true"
-          when: ghost_mail_options_auth_pass | length == 0
+    - name: Check if mail password is set
+      ansible.builtin.fail:
+        msg: "ghost_mail_options_auth_pass must be set when ghost_mail_enabled is true"
+      when: ghost_mail_options_auth_pass | length == 0
 
-        - name: Check if mail from email is set
-          ansible.builtin.fail:
-            msg: "ghost_mail_from must be set when ghost_mail_enabled is true"
-          when: ghost_mail_from | length == 0
+    - name: Check if mail from email is set
+      ansible.builtin.fail:
+        msg: "ghost_mail_from must be set when ghost_mail_enabled is true"
+      when: ghost_mail_from | length == 0
