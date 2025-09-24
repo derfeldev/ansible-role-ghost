@@ -65,7 +65,7 @@ jobs:
           fi
 
           BUILD_NUMBER=0
-          while git tag -l "${VERSION}-${BUILD_NUMBER}" | grep -q "${VERSION}-${BUILD_NUMBER}"; do
+          while git ls-remote --tags origin | grep -q "refs/tags/${VERSION}-${BUILD_NUMBER}$"; do
             BUILD_NUMBER=$((BUILD_NUMBER + 1))
           done
 
@@ -74,19 +74,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          TAG="${{ steps.determine_version.outputs.tag_name }}"
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
-            echo "already_tagged=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists. Skipping tag creation."
-          else
-            echo "already_tagged=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create and push tag
-        if: steps.check_tag.outputs.already_tagged == 'false'
         run: |
           TAG="${{ steps.determine_version.outputs.tag_name }}"
           VERSION="${{ steps.determine_version.outputs.version }}"
@@ -96,7 +84,6 @@ jobs:
           git push origin "$TAG"
 
       - name: Publish to Ansible Galaxy
-        if: steps.check_tag.outputs.already_tagged == 'false'
         env:
           GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
         run: |
