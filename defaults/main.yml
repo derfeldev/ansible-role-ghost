@@ -13,7 +13,7 @@ ghost_data_path: "{{ ghost_base_path }}/data"
 
 # Note: Change "ghost_container_image_self_build_dockerfile" when updating
 # renovate: datasource=docker depName=ghost versioning=semver
-ghost_version: 6.0.10
+ghost_version: 6.1.0
 
 ghost_uid: ''
 ghost_gid: ''
