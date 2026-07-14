@@ -13,6 +13,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Database connection-pool sizing (`ghost_database_pool_min`/`ghost_database_pool_max`)
+- Mail "well-known service" shorthand (`ghost_mail_options_service`, e.g. `Mailgun`/`SES`)
+- Separate Admin panel URL (`ghost_admin_url`)
+- Storage adapter selection for custom-built images (`ghost_storage_active`/`_media`/`_files`)
+- Logging level, transports, and rotation configuration (`ghost_logging_*`)
+- Built-in Redis cache adapter support (`ghost_cache_redis_*`)
+- Image optimization/responsive srcset toggles (`ghost_image_optimization_*`)
+- Response compression toggle (`ghost_compress_enabled`)
+- Privacy "tinfoil mode" toggle (`ghost_privacy_enabled`)
+- Staff device verification toggle (`ghost_security_staff_device_verification_enabled`)
+- Self-hosted Portal/Comments/Search front-end script overrides (`ghost_portal_url`, `ghost_comments_url`/`_styles`, `ghost_sodo_search_url`/`_styles`)
+- `mise.toml` and `just prek-*` recipes, matching mash-playbook's own dev tooling conventions
+- mash-playbook wiring example (systemd_service_manager, MariaDB, exim-relay, redis) in `docs/mash-playbook-integration.md`
+
+### Fixed
+
+- `tasks/validate_config.yml`: the database-password and mail-config checks were accidentally
+  outdented out of the validation block, and always ran instead of being scoped along with the
+  rest of the config validation
+- CI: `deploy-galaxy.yml` (triggered on tag push) never actually ran automatically, because
+  `autotag.yml` pushed its tags using the default `GITHUB_TOKEN`, and GitHub Actions doesn't
+  re-trigger other workflows for `GITHUB_TOKEN`-authored pushes. `autotag.yml` now checks out
+  and pushes using `secrets.PERSONAL_ACCESS_TOKEN` so the tag push correctly fires
+  `deploy-galaxy.yml`. Removed `autotag-deploy.yml`, which duplicated `autotag.yml`'s tagging
+  logic (risking a tag-name race on every push to `main`) and also published to Ansible Galaxy
+  unconditionally on every push, independent of tagging.
+
 ### Changed
 
 - **BREAKING**: Removed PostgreSQL support - Ghost officially supports only MySQL 8

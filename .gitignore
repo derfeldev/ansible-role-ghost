@@ -1,5 +1,8 @@
 .ansible
 
+# mise / prek local data
+/var/
+
 # macOS
 .DS_Store
 .DS_Store?

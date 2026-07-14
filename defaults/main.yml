@@ -178,17 +178,31 @@ ghost_database_name: ghost
 ghost_database_username: ghost
 ghost_database_password: ''
 
+# Knex connection-pool sizing (see `database.pool` in Ghost's config docs).
+# The defaults below match Knex's own defaults.
+ghost_database_pool_min: 2
+ghost_database_pool_max: 10
+
 # Ghost environment variables
 ghost_url: "{{ 'https://' + ghost_hostname if ghost_hostname else '' }}"
 ghost_node_env: production
 
+# Overrides the hostname/URL at which the Ghost Admin panel is served
+# (`admin.url` in Ghost's config). Leave empty to serve Admin from `ghost_url`.
+ghost_admin_url: ''
+
 # Additional environment variables to pass to the Ghost container.
-# You can use this to further influence the default configuration.
+# You can use this to further influence the default configuration,
+# for anything not exposed as a dedicated variable below.
+# See: https://ghost.org/docs/config/
 ghost_environment_variables_additional_variables: ''
 
 # Mail configuration for Ghost
 ghost_mail_enabled: false
 ghost_mail_transport: 'SMTP'
+# When set, this is used instead of `ghost_mail_options_host`/`ghost_mail_options_port`
+# (nodemailer "well-known service" shorthand, e.g. `Mailgun` or `SES`).
+ghost_mail_options_service: ''
 ghost_mail_options_host: ''
 ghost_mail_options_port: 587
 ghost_mail_options_secure: true
@@ -196,3 +210,58 @@ ghost_mail_options_auth_user: ''
 ghost_mail_options_auth_pass: ''
 ghost_mail_from: ''
 ghost_mail_from_name: ''
+
+# Storage adapters (`storage.active`/`storage.media`/`storage.files` in Ghost's config).
+# The official Ghost image only ships the built-in Local*Storage adapters, so leave these
+# empty to use local disk storage (the default). To use a different adapter (e.g. S3-compatible
+# storage), you need a custom-built image (see `ghost_container_image_self_build_*`) with the
+# adapter package placed under `content/adapters/storage/`, and its settings supplied via
+# `ghost_environment_variables_additional_variables` (e.g. `adapters__storage__s3__bucket=...`),
+# since the config keys are defined by the third-party adapter package itself.
+ghost_storage_active: ''
+ghost_storage_media: ''
+ghost_storage_files: ''
+
+# Logging configuration (`logging.*` in Ghost's config)
+ghost_logging_level: info
+ghost_logging_transports:
+  - stdout
+ghost_logging_use_local_time: false
+ghost_logging_rotation_enabled: false
+ghost_logging_rotation_period: "1d"
+ghost_logging_rotation_count: 10
+
+# Redis cache adapter (`adapters.cache.active`/`adapters.cache.Redis` in Ghost's config).
+# Ghost ships this adapter out of the box; enabling it makes Ghost use Redis instead of
+# in-memory caching for settings/image-size lookups (useful when running multiple instances).
+ghost_cache_redis_enabled: false
+ghost_cache_redis_host: ''
+ghost_cache_redis_port: 6379
+ghost_cache_redis_username: ''
+ghost_cache_redis_password: ''
+# Cached value Time-To-Live in seconds. Leave empty to use the adapter's own default.
+ghost_cache_redis_ttl: ''
+ghost_cache_redis_key_prefix: "{{ ghost_identifier }}:"
+
+# Controls automatic image resizing/responsive srcset generation (`imageOptimization.*`)
+ghost_image_optimization_resize_enabled: true
+ghost_image_optimization_srcsets_enabled: true
+
+# Controls gzip compression of HTTP responses (`compress`)
+ghost_compress_enabled: true
+
+# Controls Ghost's "tinfoil mode" (`privacy`), which disables external requests
+# (update checks, Gravatar, referrer tracking to Ghost.org, etc.) for maximum privacy.
+ghost_privacy_enabled: false
+
+# Controls whether staff accounts must verify new sign-in devices via email (`security.staffDeviceVerification`)
+ghost_security_staff_device_verification_enabled: true
+
+# Self-host the Portal/Comments/Search front-end scripts instead of loading them from the
+# jsdelivr CDN (`portal.url`, `comments.url`/`comments.styles`, `sodoSearch.url`/`sodoSearch.styles`).
+# Leave empty to use Ghost's own CDN-hosted defaults.
+ghost_portal_url: ''
+ghost_comments_url: ''
+ghost_comments_styles: ''
+ghost_sodo_search_url: ''
+ghost_sodo_search_styles: ''

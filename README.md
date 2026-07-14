@@ -13,6 +13,7 @@ This is an [Ansible](https://www.ansible.com/) role which installs [Ghost](https
 - **Database Service**: A MySQL 8 database is required for storing Ghost content and configuration data. Ghost officially supports only MySQL 8 for production environments.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
+- **Redis** (optional): Only needed if you enable the Redis cache adapter (`ghost_cache_redis_enabled`).
 
 This role *implicitly* depends on:
 
@@ -22,6 +23,27 @@ This role *implicitly* depends on:
 Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
 
 See [CHANGELOG.md](CHANGELOG.md) for migration guide and breaking changes.
+
+## Supported Ghost functionality
+
+Besides the core install (database, mail, Traefik-ready reverse-proxy labels, HSTS/CSP headers),
+this role exposes the following parts of [Ghost's configuration surface](https://ghost.org/docs/config/):
+
+- Database connection-pool sizing (`ghost_database_pool_min`/`ghost_database_pool_max`)
+- Mail via generic SMTP or a nodemailer "well-known service" shorthand (`ghost_mail_options_service`, e.g. `Mailgun`/`SES`)
+- A separate Admin panel URL (`ghost_admin_url`)
+- Storage adapter selection (`ghost_storage_active`/`_media`/`_files`) for custom-built images that ship a non-local storage adapter (e.g. S3-compatible)
+- Logging level, transports, and rotation (`ghost_logging_*`)
+- The built-in Redis cache adapter (`ghost_cache_redis_*`), useful for multi-instance setups
+- Image optimization/responsive srcset generation toggles (`ghost_image_optimization_*`)
+- Response compression (`ghost_compress_enabled`)
+- "Tinfoil mode" privacy (`ghost_privacy_enabled`), disabling external calls (update checks, Gravatar, etc.)
+- Staff sign-in device verification (`ghost_security_staff_device_verification_enabled`)
+- Self-hosting the Portal/Comments/Search front-end scripts instead of loading them from the jsdelivr CDN (`ghost_portal_url`, `ghost_comments_url`/`_styles`, `ghost_sodo_search_url`/`_styles`)
+
+Anything not covered by a dedicated variable (e.g. `spam`, `caching`, `klipy`, `opensea`, `twitter`, milestones)
+can still be set via `ghost_environment_variables_additional_variables`, using Ghost's `__`-separated env var
+naming convention documented at <https://ghost.org/docs/config/>.
 
 ## Mash-Playbook Integration
 
