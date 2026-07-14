@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Self-hosted Portal/Comments/Search front-end script overrides (`ghost_portal_url`, `ghost_comments_url`/`_styles`, `ghost_sodo_search_url`/`_styles`)
 - `mise.toml` and `just prek-*` recipes, matching mash-playbook's own dev tooling conventions
 - mash-playbook wiring example (systemd_service_manager, MariaDB, exim-relay, redis) in `docs/mash-playbook-integration.md`
+- Documented that mash-playbook only ships a `mariadb` role (no real MySQL option), and that MariaDB is
+  wire-compatible but not officially supported/tested by the Ghost team — README.md and
+  `docs/mash-playbook-integration.md` now call this out explicitly next to the database requirement
 
 ### Fixed
 

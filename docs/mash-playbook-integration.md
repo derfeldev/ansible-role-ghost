@@ -120,6 +120,15 @@ mash-playbook, add it locally under `templates/` (not the generated root-level f
 3. Wire it in `templates/group_vars_mash_servers` — register with `systemd_service_manager`, MariaDB,
    optionally `exim-relay` for mail, and optionally the bundled `redis` role for the Redis cache adapter:
 
+   > [!WARNING]
+   > mash-playbook only ships a `mariadb` role — there is no real-MySQL option in this playbook. Ghost
+   > officially supports only MySQL 8 in production; MariaDB is wire-compatible (this role sets
+   > `database.client=mysql`) and works for most installs, but isn't tested or supported by the Ghost team,
+   > and has known edge cases (JSON columns, full-text search, some generated SQL). Wiring to `mariadb` below
+   > is what most self-hosters do, but it's an accepted risk, not an officially blessed setup. If you want a
+   > guaranteed-supported database, run MySQL 8 yourself outside the playbook and point
+   > `ghost_database_hostname` at it instead of `mariadb_connection_hostname`.
+
    ```yaml
    # role-specific:systemd_service_manager
    mash_playbook_devture_systemd_service_manager_services_list_auto_itemized:

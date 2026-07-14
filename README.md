@@ -10,7 +10,15 @@ This is an [Ansible](https://www.ansible.com/) role which installs [Ghost](https
 
 ## This service requires the following other services
 
-- **Database Service**: A MySQL 8 database is required for storing Ghost content and configuration data. Ghost officially supports only MySQL 8 for production environments.
+- **Database Service**: A MySQL-protocol database is required for storing Ghost content and configuration data.
+  Ghost officially supports only **MySQL 8** for production — MariaDB is *not* an officially supported or
+  tested substitute. It works in practice for most installs (MariaDB is wire-compatible, and this role sets
+  `database.client=mysql`), but Ghost's team doesn't test against it, and there are known edge cases (JSON
+  column handling, full-text search, some generated SQL assuming genuine MySQL 8 semantics) where MariaDB can
+  diverge. If you're wiring this role into [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook),
+  note that it only ships a `mariadb` role — there's no real-MySQL option there — so you're accepting that
+  risk unless you run your own MySQL 8 instance outside the playbook and point `ghost_database_hostname` at
+  it directly.
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
 - **Redis** (optional): Only needed if you enable the Redis cache adapter (`ghost_cache_redis_enabled`).
