@@ -53,22 +53,22 @@ Anything not covered by a dedicated variable (e.g. `spam`, `caching`, `klipy`, `
 can still be set via `ghost_environment_variables_additional_variables`, using Ghost's `__`-separated env var
 naming convention documented at <https://ghost.org/docs/config/>.
 
-## Mash-Playbook Integration
+## MASH playbook integration
 
 This role supports integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and includes email functionality. See [docs/mash-playbook-integration.md](docs/mash-playbook-integration.md) for detailed integration instructions.
 
-### Quick Start for Mash-Playbook
+### Quick start with the MASH playbook
 
 ```yaml
 - role: ghost
   vars:
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
-    ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+    ghost_mail_options_auth_user: 'ghost@mta.example.com'
     ghost_mail_options_auth_pass: '{{ vault_ghost_email_password }}'
-    ghost_mail_from: 'ghost@yourdomain.com'
+    ghost_mail_from: 'ghost@mta.example.com'
     ghost_mail_from_name: 'Ghost Blog'
-    ghost_hostname: 'blog.yourdomain.com'
+    ghost_hostname: 'blog.example.com'
     ghost_database_hostname: 'localhost'
     ghost_database_password: '{{ vault_ghost_db_password }}'
 ```

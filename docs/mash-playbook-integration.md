@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2025 Pavel Dimov <@sagat79>
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Ghost Role for Mash-Playbook
+# Ghost role for the MASH playbook
 
 This Ghost Ansible role has been adapted for integration with the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) and supports email functionality.
 
@@ -16,7 +16,7 @@ This Ghost Ansible role has been adapted for integration with the [mash-playbook
 - **Reverse Proxy**: A reverse proxy server (such as Nginx or Traefik) is recommended for serving web requests and handling SSL termination.
 - **SMTP Service**: An SMTP server is needed for sending emails when mail functionality is enabled.
 
-## Mash-Playbook Integration
+## MASH playbook integration
 
 When used as part of the mash-playbook, this role integrates with email services to provide email functionality for Ghost.
 
@@ -31,13 +31,13 @@ ghost_mail_transport: 'SMTP'
 ghost_mail_options_host: 'localhost'
 ghost_mail_options_port: 587
 ghost_mail_options_secure: true
-ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+ghost_mail_options_auth_user: 'ghost@mta.example.com'
 ghost_mail_options_auth_pass: 'your_password'
-ghost_mail_from: 'ghost@yourdomain.com'
+ghost_mail_from: 'ghost@mta.example.com'
 ghost_mail_from_name: 'Ghost Blog'
 ```
 
-### Email Integration
+### Email integration
 
 When `ghost_mail_enabled` is set to `true`, the role automatically configures Ghost to use SMTP for sending emails. This includes:
 
@@ -46,7 +46,7 @@ When `ghost_mail_enabled` is set to `true`, the role automatically configures Gh
 - TLS/SSL settings
 - From email and name configuration
 
-### Usage in Mash-Playbook
+### Usage with the MASH playbook
 
 Add this role to your mash-playbook configuration:
 
@@ -55,16 +55,16 @@ Add this role to your mash-playbook configuration:
   vars:
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
-    ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+    ghost_mail_options_auth_user: 'ghost@mta.example.com'
     ghost_mail_options_auth_pass: '{{ vault_ghost_email_password }}'
-    ghost_mail_from: 'ghost@yourdomain.com'
+    ghost_mail_from: 'ghost@mta.example.com'
     ghost_mail_from_name: 'Ghost Blog'
-    ghost_hostname: 'blog.yourdomain.com'
+    ghost_hostname: 'blog.example.com'
     ghost_database_hostname: 'localhost'
     ghost_database_password: '{{ vault_ghost_db_password }}'
 ```
 
-### Email Configuration
+### Email configuration
 
 The role automatically configures Ghost's email settings when mail is enabled:
 
