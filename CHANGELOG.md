@@ -106,11 +106,11 @@ For mash-playbook users, use MySQL integration:
   vars:
     ghost_mail_enabled: true
     ghost_mail_options_host: 'localhost'
-    ghost_mail_options_auth_user: 'ghost@yourdomain.com'
+    ghost_mail_options_auth_user: 'ghost@mta.example.com'
     ghost_mail_options_auth_pass: '{{ vault_ghost_email_password }}'
-    ghost_mail_from: 'ghost@yourdomain.com'
+    ghost_mail_from: 'ghost@mta.example.com'
     ghost_mail_from_name: 'Ghost Blog'
-    ghost_hostname: 'blog.yourdomain.com'
+    ghost_hostname: 'blog.example.com'
     ghost_database_hostname: 'localhost'
     ghost_database_password: '{{ vault_ghost_db_password }}'
 ```
