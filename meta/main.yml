@@ -27,7 +27,3 @@ galaxy_info:
     - docker
     - mashplaybook
     - email
-
-dependencies:
-  - role: devture.playbook_help
-  - role: devture.systemd_docker_base
