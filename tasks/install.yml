@@ -33,6 +33,7 @@
   with_items:
     - env
     - labels
+  register: ghost_support_files_result
 
 - name: Run if self-building of Ghost container image is not enabled
   when: "not ghost_container_image_self_build | bool"
@@ -44,20 +45,20 @@
         source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
         force_source: "{{ ghost_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
         force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else ghost_container_image_force_pull }}"
-      register: result
+      register: ghost_container_image_pull_result_ansible_module
       retries: "{{ devture_playbook_help_container_retries_count }}"
       delay: "{{ devture_playbook_help_container_retries_delay }}"
-      until: result is not failed
+      until: ghost_container_image_pull_result_ansible_module is not failed
 
     - name: Ensure Ghost container image is pulled via ansible.builtin.command
       when: devture_systemd_docker_base_container_image_pull_method == 'command'
       ansible.builtin.command:
         cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ ghost_container_image }}"
-      register: result
+      register: ghost_container_image_pull_result_command
       retries: "{{ devture_playbook_help_container_retries_count }}"
       delay: "{{ devture_playbook_help_container_retries_delay }}"
-      until: result is not failed
-      changed_when: "'Downloaded newer image' in result.stdout"
+      until: ghost_container_image_pull_result_command is not failed
+      changed_when: "'Downloaded newer image' in ghost_container_image_pull_result_command.stdout"
 
 - name: Run if self-building of Ghost container image is enabled
   when: ghost_container_image_self_build | bool
@@ -115,10 +116,25 @@
     mode: "0644"
   register: ghost_systemd_service_file
 
+- name: Determine whether Ghost needs a restart
+  ansible.builtin.set_fact:
+    ghost_restart_necessary: >-
+      {{
+        ghost_support_files_result.changed | default(false)
+        or ghost_container_image_pull_result_ansible_module.changed | default(false)
+        or ghost_container_image_pull_result_command.changed | default(false)
+        or ghost_systemd_service_file.changed | default(false)
+      }}
+
 - name: Ensure Ghost systemd service is enabled and started
   ansible.builtin.systemd:
     name: "{{ ghost_identifier }}"
-    state: started
+    # `state: started` is idempotent - it never restarts an already-running
+    # service even if its env/labels/systemd-unit files just changed. Force
+    # a restart when something we manage did, so config changes actually
+    # take effect without a manual `systemctl restart` (see this role's
+    # docs / the playbook's own troubleshooting notes for the old behavior).
+    state: "{{ 'restarted' if ghost_restart_necessary | bool else 'started' }}"
     enabled: true
     daemon_reload: "{{ ghost_systemd_service_file.changed }}"
   register: ghost_systemd_service_started
